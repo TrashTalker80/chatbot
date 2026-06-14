@@ -145,8 +145,12 @@ def _extract_with_bs4_fallback(html: str) -> str:
 
     lines: list[str] = []
     heading_prefix = {
-        "h1": "#", "h2": "##", "h3": "###",
-        "h4": "####", "h5": "#####", "h6": "######",
+        "h1": "#",
+        "h2": "##",
+        "h3": "###",
+        "h4": "####",
+        "h5": "#####",
+        "h6": "######",
     }
     for elem in main.find_all(["h1", "h2", "h3", "h4", "h5", "h6", "p", "li"]):
         text = elem.get_text(" ", strip=True)

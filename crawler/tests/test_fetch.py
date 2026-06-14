@@ -92,9 +92,7 @@ class TestFetchPage:
             text="<html>Services</html>",
         )
         with create_client() as client:
-            result = fetch_page(
-                "https://www.appther.com/services/?utm_source=google", client
-            )
+            result = fetch_page("https://www.appther.com/services/?utm_source=google", client)
         assert result.ok
 
     def test_fetched_at_is_populated(self, httpx_mock: HTTPXMock):
@@ -160,9 +158,7 @@ class TestNetworkErrors:
             url="https://www.appther.com/unreachable",
         )
         with create_client() as client, patch("crawler.fetch.time.sleep"):
-            result = fetch_page(
-                "https://www.appther.com/unreachable", client, max_retries=0
-            )
+            result = fetch_page("https://www.appther.com/unreachable", client, max_retries=0)
         assert not result.ok
         assert result.error is not None
 

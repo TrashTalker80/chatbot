@@ -228,9 +228,7 @@ def embed_texts(
         )
 
     if len(all_vectors) != len(texts):
-        raise RuntimeError(
-            f"Vector count mismatch: expected {len(texts)}, got {len(all_vectors)}"
-        )
+        raise RuntimeError(f"Vector count mismatch: expected {len(texts)}, got {len(all_vectors)}")
     return all_vectors
 
 

@@ -128,9 +128,7 @@ class TestCanonicalizeUrl:
         import httpx
 
         with httpx.Client() as client:
-            result = canonicalize_url(
-                "https://www.appther.com/industries/", client=client
-            )
+            result = canonicalize_url("https://www.appther.com/industries/", client=client)
         assert "industry" in result
         assert "industries" not in result
 
@@ -194,7 +192,7 @@ class TestFindNearDuplicateGroups:
         assert find_near_duplicate_groups([doc]) == []
 
     def test_identical_docs_grouped(self):
-        text = ("Appther delivers end-to-end Odoo ERP implementations. " * 30)
+        text = "Appther delivers end-to-end Odoo ERP implementations. " * 30
         doc_a = _make_doc("https://www.appther.com/a", text)
         doc_b = _make_doc("https://www.appther.com/b", text)
         groups = find_near_duplicate_groups([doc_a, doc_b], threshold=0.85)
@@ -219,7 +217,7 @@ class TestFindNearDuplicateGroups:
         assert groups == []
 
     def test_groups_sorted_largest_first(self):
-        text = ("duplicate content " * 40)
+        text = "duplicate content " * 40
         docs = [_make_doc(f"https://www.appther.com/{i}", text) for i in range(5)]
         docs.append(
             _make_doc("https://www.appther.com/x", "completely different content about zebras")
@@ -240,7 +238,7 @@ class TestFindNearDuplicateGroups:
 
 class TestCollapseNearDuplicates:
     def _dup_pair(self):
-        text = ("Appther delivers Odoo ERP implementations for growing businesses. " * 20)
+        text = "Appther delivers Odoo ERP implementations for growing businesses. " * 20
         doc_a = _make_doc("https://www.appther.com/a", text, source="sitemap", priority=1.0)
         doc_b = _make_doc("https://www.appther.com/b", text + " Extra.", source="bfs", priority=0.5)
         return doc_a, doc_b
@@ -266,7 +264,7 @@ class TestCollapseNearDuplicates:
         assert result[0].url == "https://www.appther.com/a"
 
     def test_higher_priority_wins_when_same_source(self):
-        text = ("Appther delivers Odoo ERP implementations for growing businesses. " * 20)
+        text = "Appther delivers Odoo ERP implementations for growing businesses. " * 20
         low = _make_doc("https://www.appther.com/a", text, source="sitemap", priority=0.3)
         high = _make_doc("https://www.appther.com/b", text, source="sitemap", priority=0.9)
         result = collapse_near_duplicates([low, high], threshold=0.5)
@@ -284,7 +282,7 @@ class TestCollapseNearDuplicates:
         assert "https://www.appther.com/faq" in urls
 
     def test_overview_source_loses_to_sitemap(self):
-        text = ("Appther delivers Odoo ERP implementations for growing businesses. " * 20)
+        text = "Appther delivers Odoo ERP implementations for growing businesses. " * 20
         overview = _make_doc("https://www.appther.com/a", text, source="overview", priority=1.0)
         sitemap = _make_doc("https://www.appther.com/b", text, source="sitemap", priority=0.5)
         result = collapse_near_duplicates([overview, sitemap], threshold=0.5)

@@ -327,9 +327,7 @@ def smoke_query(
     db = _connect(uri, storage_options)
     tbl = db.open_table(table_name)
 
-    vector_results = (
-        tbl.search(query_vector, query_type="vector").limit(top_k).to_list()
-    )
+    vector_results = tbl.search(query_vector, query_type="vector").limit(top_k).to_list()
     try:
         fts_results = tbl.search(fts_query, query_type="fts").limit(top_k).to_list()
     except Exception as exc:  # noqa: BLE001

@@ -39,14 +39,14 @@ class DiscoveredURL:
 class FetchResult:
     """The outcome of fetching a single URL."""
 
-    url: str          # original requested URL (as queued)
-    final_url: str    # after following all redirects
+    url: str  # original requested URL (as queued)
+    final_url: str  # after following all redirects
     status_code: int
     html: str | None = None
     headers: dict[str, str] = field(default_factory=dict)
     # "httpx" or "playwright" — recorded so Step 2 knows how the page was rendered
     render_method: str = "httpx"
-    fetched_at: str = ""   # ISO 8601
+    fetched_at: str = ""  # ISO 8601
     error: str | None = None
 
     @property

@@ -102,8 +102,18 @@ def test_build_index_schema(lance_uri, sample_chunks):
     schema = tbl.schema
 
     field_names = [f.name for f in schema]
-    for required in ("chunk_id", "url", "title", "page_type", "content_hash",
-                     "text", "chunk_index", "source", "is_faq", "vector"):
+    for required in (
+        "chunk_id",
+        "url",
+        "title",
+        "page_type",
+        "content_hash",
+        "text",
+        "chunk_index",
+        "source",
+        "is_faq",
+        "vector",
+    ):
         assert required in field_names, f"Missing field: {required}"
 
     vector_field = schema.field("vector")
@@ -247,9 +257,7 @@ def test_upsert_total_count_after_operations(lance_uri, sample_chunks):
 
 def test_delete_chunks_for_urls(lance_uri, sample_chunks):
     build_index(sample_chunks, uri=lance_uri)
-    deleted = delete_chunks_for_urls(
-        ["https://www.appther.com/faq"], uri=lance_uri
-    )
+    deleted = delete_chunks_for_urls(["https://www.appther.com/faq"], uri=lance_uri)
     assert deleted == 1
 
     import lancedb

@@ -300,9 +300,7 @@ class TestChunkDocument:
         # FAQ chunks come before markdown chunks (lower chunk_index)
         non_faq = [c for c in chunks if not c.is_faq]
         if faq_chunks and non_faq:
-            assert max(c.chunk_index for c in faq_chunks) < min(
-                c.chunk_index for c in non_faq
-            )
+            assert max(c.chunk_index for c in faq_chunks) < min(c.chunk_index for c in non_faq)
 
     def test_faq_answer_intact_in_chunk(self):
         faq_html = _html("faq_page.html")
@@ -318,9 +316,7 @@ class TestChunkDocument:
             faq_pairs=ext.faq_pairs,
         )
         chunks = chunk_document(doc)
-        impl_chunk = next(
-            c for c in chunks if c.is_faq and "implementation take" in c.text
-        )
+        impl_chunk = next(c for c in chunks if c.is_faq and "implementation take" in c.text)
         # Full answer must be present — not truncated
         assert "eight and sixteen weeks" in impl_chunk.text
         assert "migrated" in impl_chunk.text
@@ -331,8 +327,10 @@ class TestChunkDocument:
         doc = NormalizedDoc(
             url="https://www.appther.com/services/odoo",
             original_url="https://www.appther.com/services/odoo",
-            title=ext.title, markdown=ext.markdown,
-            page_type="service", content_hash=compute_content_hash(ext.markdown),
+            title=ext.title,
+            markdown=ext.markdown,
+            page_type="service",
+            content_hash=compute_content_hash(ext.markdown),
             source="sitemap",
         )
         chunks = chunk_document(doc)
@@ -340,9 +338,7 @@ class TestChunkDocument:
         assert len(ids) == len(set(ids))
 
     def test_chunk_index_sequential_from_zero(self):
-        doc = _make_doc(
-            markdown="# A\n\nContent A.\n\n# B\n\nContent B."
-        )
+        doc = _make_doc(markdown="# A\n\nContent A.\n\n# B\n\nContent B.")
         chunks = chunk_document(doc)
         indices = [c.chunk_index for c in chunks]
         assert indices == list(range(len(chunks)))
@@ -351,9 +347,16 @@ class TestChunkDocument:
         doc = _make_doc(markdown="# Title\n\nText.")
         chunks = chunk_document(doc)
         required_keys = {
-            "chunk_id", "url", "title", "page_type",
-            "content_hash", "text", "chunk_index",
-            "source", "is_faq", "token_count",
+            "chunk_id",
+            "url",
+            "title",
+            "page_type",
+            "content_hash",
+            "text",
+            "chunk_index",
+            "source",
+            "is_faq",
+            "token_count",
         }
         for c in chunks:
             d = c.to_dict()
@@ -376,8 +379,11 @@ class TestChunkDocument:
         doc = NormalizedDoc(
             url="https://www.appther.com/faq",
             original_url="https://www.appther.com/faq",
-            title="FAQ", markdown="",
-            page_type="faq", content_hash="x", source="sitemap",
+            title="FAQ",
+            markdown="",
+            page_type="faq",
+            content_hash="x",
+            source="sitemap",
             faq_pairs=pairs,
         )
         chunks = chunk_document(doc)

@@ -10,10 +10,7 @@ LLMS_TXT_URL = "https://www.appther.com/llms.txt"
 LLMS_FULL_URL = "https://www.appther.com/llms-full.txt"
 
 # ── HTTP ──────────────────────────────────────────────────────────────────────
-USER_AGENT = (
-    "AppTherChatbotCrawler/1.0 "
-    "(+https://github.com/YOUR_ORG/appther-chatbot)"
-)
+USER_AGENT = "AppTherChatbotCrawler/1.0 (+https://github.com/YOUR_ORG/appther-chatbot)"
 REQUEST_TIMEOUT_SECONDS: float = 30.0
 
 # Polite inter-request delay; overridden by robots.txt Crawl-delay when present.
@@ -76,15 +73,15 @@ CHARS_PER_TOKEN: int = 4
 # Primary provider: Voyage AI
 VOYAGE_EMBED_MODEL: str = os.getenv("VOYAGE_EMBED_MODEL", "voyage-3.5")
 VOYAGE_RERANK_MODEL: str = os.getenv("VOYAGE_RERANK_MODEL", "rerank-2.5")
-VOYAGE_EMBED_DIMS: int = 512          # Matryoshka truncation
-VOYAGE_EMBED_DTYPE: str = "float"     # "float" for local; "int8" when supported
-VOYAGE_EMBED_BATCH_SIZE: int = 128    # max texts per API call
+VOYAGE_EMBED_DIMS: int = 512  # Matryoshka truncation
+VOYAGE_EMBED_DTYPE: str = "float"  # "float" for local; "int8" when supported
+VOYAGE_EMBED_BATCH_SIZE: int = 128  # max texts per API call
 VOYAGE_INPUT_TYPE_DOC: str = "document"
 VOYAGE_INPUT_TYPE_QUERY: str = "query"
 
 # Standby provider: Jina AI
 JINA_EMBED_MODEL: str = os.getenv("JINA_EMBED_MODEL", "jina-embeddings-v3")
-JINA_EMBED_DIMS: int = 512            # Matryoshka truncation to match Voyage
+JINA_EMBED_DIMS: int = 512  # Matryoshka truncation to match Voyage
 JINA_EMBED_BATCH_SIZE: int = 64
 JINA_EMBED_URL: str = "https://api.jina.ai/v1/embeddings"
 
