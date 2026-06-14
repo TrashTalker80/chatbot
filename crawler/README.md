@@ -38,6 +38,7 @@ Checkmark = implemented and tested.
 | `extract.py` | ✓ | trafilatura main-content → Markdown; FAQ-pair extractor (3 patterns) |
 | `normalize.py` | ✓ | URL canonicalization, SHA-256 content hash, MinHash near-dup collapse |
 | `chunk.py` | ✓ | Heading-first, 400–600 tok, 50–80 overlap; FAQ pairs → dedicated chunks; llms.txt ingestion |
-| `embed.py` | pending | Voyage primary + Jina standby; batching; int8/512-dim |
-| `index.py` | pending | LanceDB on S3: build, upsert, delete; model metadata pinning |
-| `verify.py` | pending | Post-run reconciliation report; error handling; retry/backoff |
+| `embed.py` | ✓ | Voyage primary + Jina standby; batching; int8/512-dim |
+| `index.py` | ✓ | LanceDB on S3: build, upsert, delete; model metadata pinning |
+| `verify.py` | ✓ | Post-run reconciliation report, drop alert, 404/410 de-index, failures persistence |
+| `pipeline.py` | ✓ | End-to-end orchestrator (Steps 1–4): discovery → fetch → embed → verify; CLI entry-point |

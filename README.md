@@ -57,8 +57,44 @@ terraform validate
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[crawler,embed,dev]"
 pre-commit install
-pytest -q   # 262 tests across crawler (Steps 1–3) and api
+pytest -q   # 315 tests across crawler (Steps 1–4) and api
 ```
+
+## Running the crawl pipeline
+
+Full pipeline (discovers URLs, fetches, embeds, updates index, reconciles):
+
+```bash
+# Requires VOYAGE_API_KEY, JINA_API_KEY, and a LanceDB-accessible S3 URI
+export LANCE_INDEX_URI=s3://your-bucket/lance_index
+python -m crawler.pipeline
+```
+
+Useful flags:
+
+| Flag | Effect |
+|---|---|
+| `--dry-run` | Discovery only — no fetches, no I/O |
+| `--skip-embed` | Fetch + verify without touching the index |
+| `--targeted` | Re-fetch only URLs from the previous run's `failures.jsonl` |
+| `--staging-dir DIR` | Override output directory (default: `staging/`) |
+| `-v` | Enable DEBUG logging |
+
+After each run a JSON report is written to `staging/reports/report_<timestamp>.json` and a `staging/failures.jsonl` lists any pages that failed.
+
+## GitHub Actions cron
+
+The weekly crawl (`0 2 * * 0` — Sundays 02:00 UTC) is defined in `.github/workflows/crawl.yml`. Set the following repository secrets before the first run:
+
+| Secret | Purpose |
+|---|---|
+| `VOYAGE_API_KEY` | Voyage AI embeddings + rerank |
+| `JINA_API_KEY` | Jina standby embeddings |
+| `AWS_ACCESS_KEY_ID` | S3 read/write for LanceDB index |
+| `AWS_SECRET_ACCESS_KEY` | S3 credentials |
+| `LANCE_INDEX_URI` | LanceDB S3 URI (e.g. `s3://bucket/lance_index`) |
+
+The workflow uploads the report JSON as a CI artifact (retained 30 days) and fails the job if a drop-alert fires.
 
 ## Implementation steps
 

@@ -90,3 +90,14 @@ LANCE_TABLE_NAME: str = "chunks"
 LANCE_JINA_TABLE_NAME: str = "chunks_jina"
 # Index metadata key written into a sidecar JSON in the LanceDB directory
 LANCE_META_FILENAME: str = ".index_meta.json"
+
+# ── Verification (Step 4) ────────────────────────────────────────────────────────
+# Alert when ok-page count drops more than this fraction vs the previous run.
+DROP_ALERT_THRESHOLD: float = 0.05  # 5%
+# Subdirectory under STAGING_DIR where per-run JSON reports are saved.
+REPORTS_SUBDIR: str = "reports"
+# Filename under STAGING_DIR that lists URLs failing the last fetch (for --targeted re-runs).
+FAILURES_FILENAME: str = "failures.jsonl"
+# Maximum concurrent HTTP requests.  Currently 1 (sequential) — polite for ~80-100 URLs.
+# Raise this and add a ThreadPoolExecutor in fetch.py only when throughput becomes an issue.
+MAX_CONCURRENT_REQUESTS: int = 1

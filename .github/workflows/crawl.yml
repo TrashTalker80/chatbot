@@ -1,0 +1,86 @@
+name: Weekly Crawl
+
+# Scheduled: every Sunday at 02:00 UTC.
+# Manual: workflow_dispatch with optional flags for targeted re-runs or
+#         skip-embed (fetch + verify only, no embedding or index update).
+on:
+  schedule:
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+    inputs:
+      targeted:
+        description: "Only re-fetch URLs that failed in the last run (failures.jsonl)"
+        type: boolean
+        default: false
+      skip_embed:
+        description: "Skip embedding and index update (fetch + verify only)"
+        type: boolean
+        default: false
+
+jobs:
+  crawl:
+    name: Crawl pipeline (Steps 1-4)
+    runs-on: ubuntu-latest
+
+    env:
+      VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+      JINA_API_KEY: ${{ secrets.JINA_API_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: us-east-1
+      # LanceDB index URI — local path for CI dry-runs; override with s3:// in production
+      LANCE_INDEX_URI: ${{ secrets.LANCE_INDEX_URI || './lance_index' }}
+      STAGING_DIR: /tmp/staging
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[crawler,embed]"
+
+      - name: Build pipeline flags
+        id: flags
+        run: |
+          ARGS=""
+          if [ "${{ inputs.targeted }}" = "true" ]; then
+            ARGS="$ARGS --targeted"
+          fi
+          if [ "${{ inputs.skip_embed }}" = "true" ]; then
+            ARGS="$ARGS --skip-embed"
+          fi
+          echo "args=$ARGS" >> "$GITHUB_OUTPUT"
+
+      - name: Run crawl pipeline
+        run: python -m crawler.pipeline ${{ steps.flags.outputs.args }}
+
+      - name: Upload crawl report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crawl-report-${{ github.run_id }}
+          path: /tmp/staging/reports/
+          retention-days: 30
+
+      - name: Check for drop alert
+        if: always()
+        run: |
+          python - <<'PYEOF'
+          import json, sys, pathlib, glob
+          reports = sorted(glob.glob("/tmp/staging/reports/report_*.json"))
+          if not reports:
+              print("No report found - skipping drop alert check.")
+              sys.exit(0)
+          report = json.loads(pathlib.Path(reports[-1]).read_text())
+          if report.get("drop_alert"):
+              ok = report.get("fetched", 0) + report.get("redirected", 0)
+              delta = report.get("page_count_delta", "?")
+              print(f"::error::DROP ALERT - ok pages: {ok} (delta {delta}). Check the crawl-report artifact.")
+              sys.exit(1)
+          ok = report.get("fetched", 0) + report.get("redirected", 0)
+          print(f"No drop alert. ok_count={ok}")
+          PYEOF
