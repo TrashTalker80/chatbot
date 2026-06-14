@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint-test:
+    name: Lint + Test (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dev tools
+        run: pip install ruff pytest pytest-httpx pytest-mock httpx beautifulsoup4 lxml trafilatura datasketch voyageai lancedb pyarrow tantivy pandas
+      - name: Lint
+        run: ruff check .
+      - name: Format check
+        run: ruff format --check .
+      - name: Test
+        run: pytest -q
+
+  terraform:
+    name: Terraform validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+      - name: fmt check
+        run: terraform fmt -check -recursive
+      - name: init (no backend)
+        run: terraform init -backend=false
+      - name: validate
+        run: terraform validate

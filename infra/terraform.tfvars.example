@@ -1,0 +1,7 @@
+# Copy to terraform.tfvars and fill in real values.
+# terraform.tfvars is git-ignored — never commit it.
+
+region             = "us-east-1"
+project            = "appther-chatbot"
+bucket_suffix      = "123456789012"   # replace with your 12-digit AWS account ID
+budget_alert_email = "you@example.com"

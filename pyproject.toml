@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "appther-chatbot"
+version = "0.1.0"
+requires-python = ">=3.12"
+description = "RAG chatbot for appther.com — serverless-first"
+
+[project.optional-dependencies]
+# pip install -e ".[crawler]"
+crawler = [
+    "httpx[http2]>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.2",
+    "trafilatura>=1.12",
+    "datasketch>=1.6",
+]
+# pip install -e ".[crawler-js]"  then: playwright install chromium
+crawler-js = [
+    "httpx[http2]>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.2",
+    "trafilatura>=1.12",
+    "datasketch>=1.6",
+    "playwright>=1.44",
+]
+# pip install -e ".[embed]"
+embed = [
+    "httpx[http2]>=0.27",
+    "voyageai>=0.4",
+    "lancedb>=0.33",
+    "pyarrow>=14.0",
+    "tantivy>=0.22",
+    "pandas>=2.0",
+]
+dev = [
+    "ruff>=0.5",
+    "pytest>=8.0",
+    "pytest-httpx>=0.30",
+    "pytest-mock>=3.14",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["crawler/tests", "api/tests", "eval"]
+addopts = "-q"

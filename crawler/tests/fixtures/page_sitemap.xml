@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Core pages -->
+  <url>
+    <loc>https://www.appther.com/</loc>
+    <lastmod>2026-05-15</lastmod>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.appther.com/faq</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://www.appther.com/case-study/odoo-retail/</loc>
+    <lastmod>2026-02-10</lastmod>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Services -->
+  <url>
+    <loc>https://www.appther.com/services/odoo-erp/</loc>
+    <lastmod>2026-04-01</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Industry -->
+  <url>
+    <loc>https://www.appther.com/industry/retail/</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+
+  <!-- Hire pages (near-duplicate templates) -->
+  <url>
+    <loc>https://www.appther.com/hire-react-developer/</loc>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Legal (low priority) -->
+  <url>
+    <loc>https://www.appther.com/privacy-policy</loc>
+    <priority>0.3</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+
+  <!-- Should be FILTERED by robots.txt -->
+  <url>
+    <loc>https://www.appther.com/thank-you</loc>
+    <priority>0.1</priority>
+  </url>
+  <url>
+    <loc>https://www.appther.com/wp-admin/</loc>
+    <priority>0.1</priority>
+  </url>
+
+  <!-- Should have tracking params STRIPPED (and then deduped with /services/odoo-erp/) -->
+  <url>
+    <loc>https://www.appther.com/services/odoo-erp/?utm_source=google&amp;utm_medium=cpc</loc>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>

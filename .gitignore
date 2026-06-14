@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+crash.log
+terraform.tfvars
+
+# Node
+node_modules/
+widget/dist/
+widget/build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local vector index copies
+*.lance/
+local_index/
+lance_index/
+staging/

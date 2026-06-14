@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /vendor/
+Disallow: /lib/
+Disallow: /office/
+Disallow: /thank-you
+Disallow: /thanks
+Disallow: /wp-admin/
+Disallow: /wp-login.php
+Crawl-delay: 2
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
