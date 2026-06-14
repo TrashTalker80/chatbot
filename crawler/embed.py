@@ -20,7 +20,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Literal, cast
 
 import httpx
 
@@ -140,7 +140,7 @@ class VoyageProvider(EmbedProvider):
             output_dimension=self.dims,
             output_dtype=VOYAGE_EMBED_DTYPE,
         )
-        return result.embeddings
+        return cast("list[list[float]]", result.embeddings)
 
 
 # ── Jina provider ─────────────────────────────────────────────────────────────
@@ -249,6 +249,11 @@ def _embed_with_retry(
             time.sleep(delay)
         try:
             return provider.embed_batch(texts, input_type)
+        except httpx.HTTPStatusError as exc:
+            if 400 <= exc.response.status_code < 500 and exc.response.status_code != 429:
+                raise
+            last_exc = exc
+            logger.warning("Embed attempt %d failed: %s", attempt + 1, exc)
         except Exception as exc:  # noqa: BLE001
             last_exc = exc
             logger.warning("Embed attempt %d failed: %s", attempt + 1, exc)
@@ -266,5 +271,5 @@ def embed_chunks(
     vectors = embed_texts(texts, input_type="document", provider=p)
     return [
         EmbeddedChunk.from_chunk(chunk, vector, provider=p.name, model=p.model, dims=p.dims)
-        for chunk, vector in zip(chunks, vectors, strict=False)
+        for chunk, vector in zip(chunks, vectors, strict=True)
     ]

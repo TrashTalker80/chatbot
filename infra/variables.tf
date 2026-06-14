@@ -19,3 +19,9 @@ variable "budget_alert_email" {
   description = "Email address that receives AWS Budget cost alerts"
   type        = string
 }
+
+variable "secret_recovery_window_days" {
+  description = "Recovery window for Secrets Manager secrets (0 in dev, 7-30 in prod)"
+  type        = number
+  default     = 7
+}

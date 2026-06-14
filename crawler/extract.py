@@ -217,7 +217,11 @@ def _collect_details_pairs(soup: BeautifulSoup, pairs: list[FaqPair], seen: set[
             continue
 
         full_text = _clean_text(details.get_text(" ", strip=True))
-        answer = full_text.replace(question, "", 1).strip()
+        answer = (
+            full_text[len(question) :].strip()
+            if full_text.startswith(question)
+            else full_text.replace(question, "", 1).strip()
+        )
 
         if answer:
             pairs.append(FaqPair(question=question, answer=answer))

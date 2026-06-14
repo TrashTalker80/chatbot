@@ -199,7 +199,13 @@ def _retry_wait(retry_after: str | None, attempt: int, backoff_base: float) -> f
         try:
             return max(0.0, float(retry_after))
         except ValueError:
-            pass
+            from email.utils import parsedate_to_datetime
+
+            try:
+                delta = parsedate_to_datetime(retry_after) - datetime.now(UTC)
+                return max(0.0, delta.total_seconds())
+            except (TypeError, ValueError):
+                pass
     return backoff_base**attempt
 
 

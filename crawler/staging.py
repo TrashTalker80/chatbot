@@ -111,7 +111,8 @@ def load_fetch_result(url: str, staging_dir: str = STAGING_DIR) -> FetchResult |
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     html_path = raw_dir / f"{file_id}.html"
     html = html_path.read_text(encoding="utf-8") if html_path.exists() else None
-    return FetchResult(**meta, html=html)
+    meta.pop("html", None)
+    return FetchResult.from_dict({**meta, "html": html})
 
 
 def list_staged_pages(staging_dir: str = STAGING_DIR) -> list[Path]:

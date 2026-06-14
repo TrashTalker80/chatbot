@@ -32,7 +32,9 @@ import logging
 import os
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlparse
 
+import boto3
 import pyarrow as pa
 
 from crawler.config import (
@@ -88,24 +90,48 @@ def _rows_from_embedded(embedded: list[EmbeddedChunk]) -> list[dict]:
 # ── Index metadata ────────────────────────────────────────────────────────────
 
 
-def _meta_path(uri: str, table_name: str) -> Path:
-    """Local path to the sidecar metadata JSON for this table."""
-    base = Path(uri) if not uri.startswith("s3://") else Path("/tmp/lance_meta")
-    base.mkdir(parents=True, exist_ok=True)
-    return base / f"{table_name}{LANCE_META_FILENAME}"
+# keep metadata co-located with the index (S3 object, not /tmp)
+def _meta_key(table_name: str) -> str:
+    return f"{table_name}{LANCE_META_FILENAME}"
+
+
+def _split_s3_uri(uri: str) -> tuple[str, str]:
+    """Split 's3://bucket/key/...' into (bucket, key)."""
+    parsed = urlparse(uri)
+    return parsed.netloc, parsed.path.lstrip("/")
+
+
+def _write_s3_object(s3_uri: str, body: str) -> None:
+    bucket, key = _split_s3_uri(s3_uri)
+    boto3.client("s3").put_object(Bucket=bucket, Key=key, Body=body.encode("utf-8"))
+
+
+def _read_s3_object(s3_uri: str) -> str | None:
+    bucket, key = _split_s3_uri(s3_uri)
+    client = boto3.client("s3")
+    try:
+        resp = client.get_object(Bucket=bucket, Key=key)
+    except client.exceptions.NoSuchKey:
+        return None
+    return resp["Body"].read().decode("utf-8")
 
 
 def write_index_meta(uri: str, table_name: str, meta: dict) -> None:
-    path = _meta_path(uri, table_name)
-    path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
-    logger.info("Wrote index metadata to %s", path)
+    payload = json.dumps(meta, indent=2)
+    if uri.startswith("s3://"):
+        _write_s3_object(f"{uri.rstrip('/')}/{_meta_key(table_name)}", payload)
+    else:
+        base = Path(uri)
+        base.mkdir(parents=True, exist_ok=True)
+        (base / _meta_key(table_name)).write_text(payload, encoding="utf-8")
 
 
 def read_index_meta(uri: str, table_name: str) -> dict:
-    path = _meta_path(uri, table_name)
-    if not path.exists():
-        return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    if uri.startswith("s3://"):
+        raw = _read_s3_object(f"{uri.rstrip('/')}/{_meta_key(table_name)}")
+        return json.loads(raw) if raw else {}
+    path = Path(uri) / _meta_key(table_name)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
 def _make_meta(embedded: list[EmbeddedChunk], dims: int) -> dict:
@@ -253,6 +279,7 @@ def upsert_chunks(
         _create_fts_index(tbl)
 
     meta = read_index_meta(uri, table_name)
+    meta.update(_make_meta(to_add + to_update, dims))
     meta["chunk_count"] = tbl.count_rows()
     meta["last_upsert"] = _utcnow()
     meta["last_added"] = len(to_add)
@@ -282,7 +309,7 @@ def _fetch_existing_hashes(tbl) -> dict[str, str]:
 def _delete_by_chunk_ids(tbl, chunk_ids: list[str]) -> None:
     if not chunk_ids:
         return
-    ids_sql = ", ".join(f"'{cid}'" for cid in chunk_ids)
+    ids_sql = ", ".join("'" + cid.replace("'", "''") + "'" for cid in chunk_ids)
     tbl.delete(f"chunk_id IN ({ids_sql})")
 
 
@@ -304,7 +331,7 @@ def delete_chunks_for_urls(
         return 0
 
     tbl = db.open_table(table_name)
-    urls_sql = ", ".join(f"'{u}'" for u in urls)
+    urls_sql = ", ".join("'" + u.replace("'", "''") + "'" for u in urls)
     before = tbl.count_rows()
     tbl.delete(f"url IN ({urls_sql})")
     deleted = before - tbl.count_rows()

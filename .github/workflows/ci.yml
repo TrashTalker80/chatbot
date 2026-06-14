@@ -15,12 +15,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install dev tools
-        run: pip install ruff pytest pytest-httpx pytest-mock httpx beautifulsoup4 lxml trafilatura datasketch voyageai lancedb pyarrow tantivy pandas
+        run: pip install -e ".[crawler,embed,dev]"
       - name: Lint
         run: ruff check .
       - name: Format check
         run: ruff format --check .
       - name: Test
+        if: always()
         run: pytest -q
 
   terraform:

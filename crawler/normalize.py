@@ -143,7 +143,7 @@ def build_normalized_doc(
     followed by fetch.py); `client` is only needed if you want canonicalize_url
     to re-verify redirects independently of the fetch step.
     """
-    canonical = canonicalize_url(fetch.final_url, client=client)
+    canonical = canonicalize_url(fetch.final_url)
     return NormalizedDoc(
         url=canonical,
         original_url=fetch.url,
@@ -226,6 +226,7 @@ def find_near_duplicate_groups(
     adjacency: dict[str, set[str]] = {url: set() for url in hashes}
     for url, m in hashes.items():
         for neighbor in lsh.query(m):
+            neighbor = str(neighbor)
             if neighbor != url:
                 adjacency[url].add(neighbor)
                 adjacency[neighbor].add(url)
