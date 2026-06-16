@@ -8,8 +8,9 @@ version = "0.1.0"
 requires-python = ">=3.12"
 description = "RAG chatbot for appther.com — serverless-first"
 
-[project.scripts]
-appther-crawl = "crawler.pipeline:main"
+[tool.setuptools.packages.find]
+include = ["crawler*", "api*", "eval*"]
+exclude = ["*.tests", "*.tests.*"]
 
 [project.optional-dependencies]
 # pip install -e ".[crawler]"
